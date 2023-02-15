@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="logDir" value="./logs"/>
+    <property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %thread [%logger] - %m%n"/>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="asyncConsoleAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="consoleAppender"/>
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+    </appender>
+
+    <appender name="rollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logDir}/logback-sys.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 按照时间和压缩格式指定文件名，压缩格式为gz（若不想压缩则把.gz去掉，gz会产生很多tmp文件） -->
+            <fileNamePattern>${logDir}/logback-sys.%d{yyyy-MM-dd}.part%i.log</fileNamePattern>
+            <maxFileSize>1KB</maxFileSize>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="asyncRollingFileAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="rollingFileAppender"/>
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="asyncConsoleAppender"/>
+        <appender-ref ref="asyncRollingFileAppender"/>
+    </root>
+
+</configuration>

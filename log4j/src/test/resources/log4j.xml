@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' >
+    <!-- 控制台输出 -->
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <param name="target" value="System.out"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] %t [%c] - %m%n"/>
+        </layout>
+        <param name="encoding" value="UTF-8"/>
+    </appender>
+
+    <!-- FileAppender示例 -->
+    <appender name="exampleFile" class="org.apache.log4j.FileAppender">
+        <!-- 日志文件保存位置 -->
+        <param name="file" value="logs/log4j-exampleFile.log"/>
+        <!-- 保存的日志级别，包含设置在内以及更高等级的日志。不指定则使用rootLogger设置的日志级别 -->
+        <param name="threshold" value="info"/>
+        <!-- 指定日志格式化器 -->
+        <layout class="org.apache.log4j.PatternLayout">
+            <!-- 日志格式 -->
+            <param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] %t [%c] - %m%n"/>
+        </layout>
+        <!-- 是否以追加的方式记录日志，默认也是true -->
+        <param name="append" value="true"/>
+        <!-- 如果日志中有中文，设置编码 -->
+        <param name="encoding" value="UTF-8"/>
+    </appender>
+
+    <!-- RollingFileAppender示例 -->
+    <appender name="exampleRollingFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="file" value="logs/log4j-exampleRollingFile.log"/>
+        <param name="threshold" value="info"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] %t [%c] - %m%n"/>
+        </layout>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <!-- 独有项 -->
+        <!-- 文件大小(KB/MB/GB) -->
+        <param name="maxFileSize" value="1KB"/>
+        <!-- 文件备份数量（文件备份数量超过指定数量后，则新的日志覆盖最旧的那个日志文件） -->
+        <param name="maxBackupIndex" value="5"/>
+    </appender>
+
+    <!-- DailyRollingFileAppender示例 -->
+    <appender name="exampleDailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="logs/log4j-exampleDailyRollingFile.log"/>
+        <param name="threshold" value="info"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] %t [%c] - %m%n"/>
+        </layout>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <!-- 独有项 -->
+        <!-- 示例按照秒来拆分，在实际中通常按照天来拆分 -->
+        <param name="datePattern" value="'.'yyyy-MM-dd HH_mm_ss"/>
+    </appender>
+
+    <!-- 持久化到数据库，数据库的那几个连接属性要注意大小写 -->
+    <appender name="logDB" class="org.apache.log4j.jdbc.JDBCAppender">
+        <layout class="org.apache.log4j.PatternLayout"/>
+        <param name="threshold" value="error"/>
+        <param name="Driver" value="com.mysql.jdbc.Driver"/>
+        <param name="URL" value="jdbc:mysql://localhost:3306/logger-demo"/>
+        <param name="User" value="root"/>
+        <param name="Password" value="123456"/>
+        <param name="Sql" value="INSERT INTO t_log4j_logs (project_name, create_time, level, thread, category, filename, message) VALUES ('log4j', '%d{yyyy-MM-dd HH:mm:ss}', '%p', '%t', '%c', '%F', '%m')"/>
+    </appender>
+
+    <!-- 自定义Logger之AccessLogger -->
+    <appender name="accessLogger" class="org.apache.log4j.FileAppender">
+        <param name="file" value="logs/log4j-accessLogger.log"/>
+        <param name="threshold" value="info"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] %t [%c] - %m%n"/>
+        </layout>
+        <param name="append" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+    </appender>
+
+    <!-- 避免向上传递，导致rootLogger也处理一遍这个日志，注意logger名称和appender名称的区别 -->
+    <logger name="AccessLogger" additivity="false">
+        <level value="info"/>
+        <appender-ref ref="console"/>
+        <appender-ref ref="accessLogger" />
+    </logger>
+
+    <root>
+        <level value="trace"/>
+        <appender-ref ref="console"/>
+<!--        <appender-ref ref="exampleFile"/>-->
+<!--        <appender-ref ref="exampleRollingFile"/>-->
+        <appender-ref ref="exampleDailyRollingFile"/>
+<!--        <appender-ref ref="logDB"/>-->
+    </root>
+
+</log4j:configuration>

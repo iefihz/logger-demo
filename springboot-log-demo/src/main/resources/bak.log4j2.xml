@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+    <properties>
+        <property name="logDir">./logs</property>
+        <property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %thread [%logger] - %m%n</property>
+    </properties>
+
+    <Appenders>
+        <Console name="consoleAppender" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8" pattern="${pattern}"/>
+        </Console>
+
+        <RollingFile name="sysAppender" fileName="${logDir}/sys.log"
+                     filePattern="${logDir}/$${date:yyyy-MM-dd}/sys.%d{yyyy-MM-dd_HH-mm}.part%i.log">
+            <PatternLayout charset="UTF-8" pattern="${pattern}"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10KB"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <RollingFile name="apiAppender" fileName="${logDir}/api.log"
+                     filePattern="${logDir}/$${date:yyyy-MM-dd}/api.%d{yyyy-MM-dd_HH-mm}.part%i.log">
+            <PatternLayout charset="UTF-8" pattern="${pattern}"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10KB"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- 异步：系统日志 -->
+        <AsyncLogger name="com.iefihz.springboot" level="info" includeLocation="false" additivity="false">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="sysAppender"/>
+        </AsyncLogger>
+
+        <!-- 异步：Api日志 -->
+        <AsyncLogger name="ApiLogger" level="info" includeLocation="false" additivity="false">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="apiAppender"/>
+        </AsyncLogger>
+
+        <!--<Root level="info">
+            <AppenderRef ref="consoleAppender"/>
+        </Root>-->
+    </Loggers>
+
+</Configuration>

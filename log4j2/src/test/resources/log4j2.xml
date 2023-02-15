@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+    <!-- Configuration标签中status="debug" monitorInterval="5"前者表示日志框架自身的日志输出级别，后者自动加载配置文件间隔时间不低于5秒 -->
+    <!-- 注意：log4j2的配置文件标签首字母需要大写，除了properties标签 -->
+
+    <!-- 可引用参数配置 -->
+    <properties>
+        <!-- 配置日志文件的输出路径，通常用绝对路径，这里为了方便管理而用先对路径 -->
+        <property name="logDir">./logs</property>
+        <!-- 设置日志格式 -->
+        <property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %thread [%logger] - %m%n</property>
+    </properties>
+
+    <!-- 配置appender -->
+    <Appenders>
+        <!-- 控制台appender -->
+        <Console name="consoleAppender" target="SYSTEM_OUT">
+            <PatternLayout charset="UTF-8" pattern="${pattern}"/>
+
+            <!-- 过滤器，控制台只输出level及其以上级别的信息(onMatch) ，其他的直接拒绝(onMismatch) -->
+            <!--<ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>-->
+        </Console>
+
+        <!-- 普通配置文件appender -->
+        <File name="fileAppender" fileName="${logDir}/log4j2.log">
+            <!-- 日志格式 -->
+            <PatternLayout charset="UTF-8" pattern="${pattern}"/>
+        </File>
+
+        <!-- 按照指定规则拆分文件appender，fileName日志文件名字，filePattern日志文件拆分后命名规则（这里$$可引用作路径） -->
+        <RollingFile name="rollingFileAppender" fileName="${logDir}/rollingFile.log"
+                     filePattern="${logDir}/$${date:yyyy-MM-dd}/rollingFile.%d{yyyy-MM-dd_HH-mm}.part%i.log">
+            <!-- 日志格式 -->
+            <PatternLayout charset="UTF-8" pattern="${pattern}"/>
+            <Policies>
+                <!-- 系统启动时，触发拆分规则 -->
+                <OnStartupTriggeringPolicy/>
+                <!-- 按照文件大小拆分 -->
+                <SizeBasedTriggeringPolicy size="10KB"/>
+                <!-- 按照时间节点进行拆分，规则在RollingFile标签的filePattern已经给出 -->
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <!-- 文件个数的限制（%i最大值，从1开始），超出这个数值，则覆盖从最旧的开始覆盖 -->
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- 异步日志appender -->
+        <!--<Async name="asyncAppender">
+            &lt;!&ndash; 引用appender &ndash;&gt;
+            <AppenderRef ref="consoleAppender"/>
+        </Async>-->
+    </Appenders>
+
+    <!-- 配置logger -->
+    <Loggers>
+        <!-- 自定义异步日志logger，includeLocation="false"去掉行号，行号影响效率；additivity="false"不继承root logger； -->
+        <AsyncLogger name="com.iefihz.log4j2" level="trace" includeLocation="false" additivity="false">
+            <!-- 引用appender -->
+            <AppenderRef ref="consoleAppender"/>
+        </AsyncLogger>
+
+        <!-- 配置root logger -->
+        <Root level="trace">
+            <!-- 引用具体appender -->
+            <AppenderRef ref="consoleAppender"/>
+            <!--<AppenderRef ref="fileAppender"/>-->
+            <!--<AppenderRef ref="rollingFileAppender"/>-->
+            <!--<AppenderRef ref="asyncAppender"/>-->
+        </Root>
+    </Loggers>
+
+</Configuration>
